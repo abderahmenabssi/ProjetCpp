@@ -1,0 +1,13 @@
+<RCC>
+    <qresource prefix="/">
+        <file>icon.png</file>
+        <file>123.jpeg</file>
+        <file>1234.png</file>
+        <file>valider.png</file>
+        <file>annuler.png</file>
+        <file>ajouter.png</file>
+        <file>modifier.png</file>
+        <file>supprimer.png</file>
+        <file>supp.png</file>
+    </qresource>
+</RCC>
