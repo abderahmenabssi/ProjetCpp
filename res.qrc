@@ -9,5 +9,10 @@
         <file>modifier.png</file>
         <file>supprimer.png</file>
         <file>supp.png</file>
+        <file>chercher.png</file>
+        <file>gestion.png</file>
+        <file>tri.png</file>
+        <file>stat.png</file>
+        <file>pdf.png</file>
     </qresource>
 </RCC>

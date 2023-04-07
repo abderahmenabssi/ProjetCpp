@@ -15,6 +15,12 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
       void reactivateModifierButton();
+      void afficherStats();
+      bool statsAdded = false;
+      void afficherStatsAge();
+      bool statsAgeAdded;
+
+
 
 
 private slots:
@@ -38,6 +44,18 @@ private slots:
 
 
 
+
+    void on_pb_chercher_clicked();
+
+
+
+    void on_pb_tri_clicked();
+
+    void on_pb_stat_clicked();
+
+
+
+    void on_pb_pdf_clicked();
 
 private:
     Ui::MainWindow *ui;

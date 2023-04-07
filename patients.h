@@ -28,6 +28,9 @@ public:
     bool supprimer(int);
     bool modifier(int, QString, QString, QString , QString ,int );
     Patients obtenirPatient(int);
+    QSqlQueryModel* chercher(int CIN,bool triCroissant);
+    QSqlQueryModel* trierNoms();
+    QString pourcentageHommesFemmes();
 
 private:
     int CIN;
