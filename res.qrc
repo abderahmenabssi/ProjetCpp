@@ -14,5 +14,8 @@
         <file>tri.png</file>
         <file>stat.png</file>
         <file>pdf.png</file>
+        <file>his.png</file>
+        <file>facture.jpg</file>
+        <file>generer.png</file>
     </qresource>
 </RCC>

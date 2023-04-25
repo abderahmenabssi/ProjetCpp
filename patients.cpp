@@ -53,17 +53,18 @@ bool Patients::ajouter()
          query.bindValue(":date", date);
          query.bindValue(":sexe", sexe);
          query.bindValue(":Ntelephone", Ntelephone);
-         if(query.exec())
-            {
-                return true;
-            }
-            else
-            {
+         if (!query.exec()) {
                 return false;
             }
 
+            // Enregistrement dans l'historique
+            enregistrerAjoutHistorique(CIN);
 
-}
+            return true;
+        }
+
+
+
 bool Patients::rechercher( int CIN)
 {
     QSqlQuery query;
@@ -86,8 +87,15 @@ bool Patients::supprimer( int CIN)
     QSqlQuery query;
          query.prepare("DELETE FROM PATIENTT WHERE CIN=:CIN");
          query.bindValue(0, CIN);
-         return query.exec();
-}
+         if (!query.exec()) {
+                return false;
+            }
+
+            // Enregistrement dans l'historique
+            enregistrerSupprimerHistorique(CIN);
+
+            return true;
+        }
 
 Patients Patients::obtenirPatient( int CIN)
 {
@@ -115,8 +123,16 @@ bool Patients::modifier( int CIN, QString nom, QString prenom, QString date, QSt
     query.bindValue(":date", date);
     query.bindValue(":sexe", sexe);
     query.bindValue(":Ntelephone",Ntelephone);
-    return query.exec();
-}
+    if (!query.exec()) {
+           return false;
+       }
+
+       // Enregistrement dans l'historique
+       enregistrerModifierHistorique(CIN);
+
+       return true;
+   }
+
 
 QSqlQueryModel* Patients::afficher()
 {
@@ -165,7 +181,10 @@ QSqlQueryModel* Patients::chercher(int CIN)
     return model;
 }
 */
+/*//////////////////////*/
 
+
+/*
 QSqlQueryModel* Patients::chercher(int CIN, bool triCroissant)
 {
     if (CIN == 0) {
@@ -175,9 +194,9 @@ QSqlQueryModel* Patients::chercher(int CIN, bool triCroissant)
     QSqlQueryModel* model = new QSqlQueryModel();
     QString queryStr = "SELECT * FROM PATIENTT WHERE CIN LIKE '%" + QString::number(CIN) + "%'";
     if (triCroissant) {
-        queryStr += " ORDER BY NOM ASC";
+        queryStr += " ORDER BY CIN ASC";
     } else {
-        queryStr += " ORDER BY NOM DESC";
+        queryStr += " ORDER BY CIN DESC";
     }
     model->setQuery(queryStr);
 
@@ -190,7 +209,28 @@ QSqlQueryModel* Patients::chercher(int CIN, bool triCroissant)
 
     return model;
 }
+*/
 
+QSqlQueryModel* Patients::filtrerPatients(const QString &text)
+{
+    QSqlQueryModel* model = new QSqlQueryModel();
+    QString queryStr = "SELECT * FROM PATIENTT WHERE CIN LIKE '" + text + "%' OR NOM LIKE '" + text + "%' OR PRENOM LIKE '" + text + "%' ";
+    model->setQuery(queryStr);;
+
+    // configuration des en-têtes
+    model->setHeaderData(0, Qt::Horizontal, QObject::tr("CIN"));
+    model->setHeaderData(1, Qt::Horizontal, QObject::tr("PRENOM"));
+    model->setHeaderData(2, Qt::Horizontal, QObject::tr("NOM"));
+    model->setHeaderData(3, Qt::Horizontal, QObject::tr("DATE DE NAISSANCE"));
+    model->setHeaderData(4, Qt::Horizontal, QObject::tr("Sexe"));
+    model->setHeaderData(5, Qt::Horizontal, QObject::tr("N°TELEPHONE"));
+
+    // Affichage du modèle dans votre QTableView
+    return model;
+}
+
+
+/*
 QSqlQueryModel* Patients::trierNoms()
 {
     QSqlQueryModel* model = new QSqlQueryModel();
@@ -203,6 +243,8 @@ QSqlQueryModel* Patients::trierNoms()
     model->setHeaderData(5, Qt::Horizontal, QObject::tr("N°TELEPHONE"));
     return model;
 }
+
+*/
 QString Patients::pourcentageHommesFemmes() {
     int totalPatients = 0;
     int hommes = 0;
@@ -234,3 +276,64 @@ QString Patients::pourcentageHommesFemmes() {
     resultat += "Pourcentage de patients femmes : " + QString::number(pourcentageFemmes) + "%";
     return resultat;
 }
+void Patients::enregistrerAjoutHistorique(int CIN)
+{
+    QDateTime now = QDateTime::currentDateTime();
+    QString action = "Ajout";
+    QString patient = obtenirPatient(CIN).getnom() + " " + obtenirPatient(CIN).getprenom();
+    QString time = now.toString("yyyy-MM-dd HH:mm:ss");
+
+    QSqlQuery query;
+    query.prepare("INSERT INTO HISTORIQUE (ACTION, PATIENT, TIME) "
+                  "VALUES (:action, :patient, :time)");
+    query.bindValue(":action", action);
+    query.bindValue(":patient", patient);
+    query.bindValue(":time", time);
+    query.exec();
+}
+void Patients::enregistrerModifierHistorique(int CIN)
+{
+    QDateTime now = QDateTime::currentDateTime();
+    QString action = "Modification";
+    QString patient = obtenirPatient(CIN).getnom() + " " + obtenirPatient(CIN).getprenom();
+    QString time = now.toString("yyyy-MM-dd HH:mm:ss");
+
+    QSqlQuery query;
+    query.prepare("INSERT INTO HISTORIQUE (ACTION, PATIENT, TIME) "
+                  "VALUES (:action, :patient, :time)");
+    query.bindValue(":action", action);
+    query.bindValue(":patient", patient);
+    query.bindValue(":time", time);
+    query.exec();
+}
+QSqlQueryModel* Patients::afficherH()
+{
+    QSqlQueryModel* model=new QSqlQueryModel();
+
+          model->setQuery("SELECT ACTION, PATIENT, TIME FROM HISTORIQUE");
+          model->setHeaderData(0, Qt::Horizontal,QObject::tr("ACTION"));
+          model->setHeaderData(1, Qt::Horizontal,QObject::tr("PATIENT"));
+          model->setHeaderData(2, Qt::Horizontal,QObject::tr("TIME"));
+          return model;
+}
+void Patients::enregistrerSupprimerHistorique(int CIN)
+{
+    QDateTime now = QDateTime::currentDateTime();
+    QString action = "Suppression";
+    QString patient = QString::number(CIN);
+    QString time = now.toString("yyyy-MM-dd HH:mm:ss");
+
+    QSqlQuery query;
+    query.prepare("INSERT INTO HISTORIQUE (ACTION, PATIENT, TIME) "
+                  "VALUES (:action, :patient, :time)");
+    query.bindValue(":action", action);
+    query.bindValue(":patient", patient);
+    query.bindValue(":time", time);
+    query.exec();
+}
+
+
+
+
+
+

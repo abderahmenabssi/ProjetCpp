@@ -28,14 +28,20 @@ public:
     bool supprimer(int);
     bool modifier(int, QString, QString, QString , QString ,int );
     Patients obtenirPatient(int);
-    QSqlQueryModel* chercher(int CIN,bool triCroissant);
+   /* QSqlQueryModel* chercher(int CIN,bool triCroissant);*/
+    QSqlQueryModel*  filtrerPatients(const QString &text);
     QSqlQueryModel* trierNoms();
     QString pourcentageHommesFemmes();
+    void enregistrerAjoutHistorique(int);
+    void enregistrerModifierHistorique(int);
+    void enregistrerSupprimerHistorique(int);
+    QSqlQueryModel* afficherH();
 
 private:
     int CIN;
     QString nom , prenom , date , sexe ;
     int Ntelephone;
+    bool triCroissant;
 };
 
 #endif // PATIENTS_H
